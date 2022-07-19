@@ -25,8 +25,8 @@ def dynamodb(request):
 
     request.addfinalizer(lambda: proc.kill())
 
-    os.environ["AWS_ACCESS_KEY_ID"] = "dymmy_access_key"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "dymmy_secret_key"
+    os.environ["AWS_ACCESS_KEY_ID"] = "dummy_access_key"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "dummy_secret_key"
 
     for model in ALL_MODELS:
         model.create_table(wait=True)
