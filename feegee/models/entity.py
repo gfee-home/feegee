@@ -1,15 +1,14 @@
-from enum import Enum
-from typing import Dict
+from typing import Dict, Optional
 import json
 
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute
 
 
-class FeatureType(Enum):
-    STRING = 0
-    INTEGER = 1
-    FLOAT = 2
+class FeatureDataType():
+    STRING = "string"
+    INTEGER = "integer"
+    FLOAT = "float"
 
 
 class StandardEntity(Model):
@@ -20,25 +19,40 @@ class StandardEntity(Model):
         host = "http://localhost:8000"
 
     org_id_entity_name = UnicodeAttribute(hash_key=True)
-    features = UnicodeAttribute()
+    features_str = UnicodeAttribute()
 
     @staticmethod
     def _hash_key(org_id: str, entity_name: str) -> str:
         return "{}|{}".format(org_id, entity_name)
 
-    @staticmethod
-    def lookup(org_id: str, entity_name: str) -> 'StandardEntity':
-        return StandardEntity.get(StandardEntity._hash_key(org_id, entity_name))
+    @property
+    def org_id(self) -> str:
+        return self.org_id_entity_name.split('|')[0]
+
+    @property
+    def entity_name(self) -> str:
+        return self.org_id_entity_name.split('|')[1]
+
+    @property
+    def features(self) -> Dict[str, str]:
+        return json.loads(self.features_str)
 
     @staticmethod
-    def upsert(org_id: str, entity_name: str, features: Dict[str, FeatureType]) -> None:
+    def lookup(org_id: str, entity_name: str) -> Optional['StandardEntity']:
+        try:
+            return StandardEntity.get(StandardEntity._hash_key(org_id, entity_name))
+        except StandardEntity.DoesNotExist:
+            return None
+
+    @staticmethod
+    def upsert(org_id: str, entity_name: str, features: Dict[str, str]) -> None:
         full_id = StandardEntity._hash_key(org_id, entity_name)
-        existing_entity = StandardEntity.get(full_id)
-        if existing_entity is None:
+        try:
+            existing_entity = StandardEntity.get(full_id)
+            existing_entity.features_str = json.dumps(features)
+            existing_entity.save()
+        except StandardEntity.DoesNotExist:
             new_entity = StandardEntity()
             new_entity.org_id_entity_name = full_id
-            new_entity.features = json.dumps(features)
+            new_entity.features_str = json.dumps(features)
             new_entity.save()
-        else:
-            existing_entity.features = features
-            existing_entity.save()

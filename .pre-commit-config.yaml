@@ -12,7 +12,8 @@ repos:
     rev: 'v0.901'
     hooks:
     -   id: mypy
-        additional_dependencies: [types-click, types-termcolor, types-python-dateutil, types-pytz]
+        args: [--ignore-missing-imports]
+        additional_dependencies: [types-click, types-termcolor, types-python-dateutil, types-pytz, pynamodb, types-all]
 -   repo: https://github.com/PyCQA/flake8
     rev: '3.9.2'
     hooks:
