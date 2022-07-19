@@ -42,6 +42,3 @@ class StandardEntity(Model):
         else:
             existing_entity.features = features
             existing_entity.save()
-
-    
-
