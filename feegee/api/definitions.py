@@ -1,5 +1,4 @@
-from typing import List
-import json
+from typing import Any, Dict, List
 
 from pydantic import BaseModel
 
@@ -28,7 +27,7 @@ def definition_set_single(definition: DefinitionSetSingle):
 
 
 @APP.get("/api/v1/definitions/get_single/{entity_name}", response_model=DefinitionSetSingle)
-def definition_get_single(entity_name: str) -> DefinitionSetSingle:
+def definition_get_single(entity_name: str) -> Dict[str, Any]:
     entity = StandardEntity.lookup("fake_org_id", entity_name)
     if entity is None:
         raise ValueError("nope")
