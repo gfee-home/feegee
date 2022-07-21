@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 import json
 
 from pynamodb.models import Model
@@ -34,7 +34,7 @@ class StandardEntity(Model):
         return self.org_id_entity_name.split('|')[1]
 
     @property
-    def features(self) -> Dict[str, str]:
+    def features(self) -> List[Dict[str, str]]:
         return json.loads(self.features_str)
 
     @staticmethod
@@ -45,7 +45,7 @@ class StandardEntity(Model):
             return None
 
     @staticmethod
-    def upsert(org_id: str, entity_name: str, features: Dict[str, str]) -> None:
+    def upsert(org_id: str, entity_name: str, features: List[Dict[str, str]]) -> None:
         full_id = StandardEntity._hash_key(org_id, entity_name)
         try:
             existing_entity = StandardEntity.get(full_id)

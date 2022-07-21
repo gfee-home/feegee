@@ -1,13 +1,22 @@
 import subprocess
 import os
+import time
 
 from pytest import fixture
+from fastapi.testclient import TestClient
 
-from feegee.models.entity import StandardEntity, FeatureDataType
+from feegee import APP
+import feegee.loader  # noqa
+from feegee.models.entity import StandardEntity
+from feegee.models.point_data import PointData
+
+
+client = TestClient(APP)
 
 
 ALL_MODELS = [
-    StandardEntity
+    StandardEntity,
+    PointData
 ]
 
 
@@ -23,6 +32,8 @@ def dynamodb(request):
         cwd="./bin"
     )
 
+    time.sleep(2)
+
     request.addfinalizer(lambda: proc.kill())
 
     os.environ["AWS_ACCESS_KEY_ID"] = "dummy_access_key"
@@ -32,16 +43,3 @@ def dynamodb(request):
         model.create_table(wait=True)
 
     yield None
-
-
-def test_standard_entity(dynamodb):
-    StandardEntity.upsert(
-        org_id="test1234",
-        entity_name="ThisIsOnlyATest",
-        features={'foo': FeatureDataType.STRING}
-    )
-
-    entity = StandardEntity.lookup("test1234", "ThisIsOnlyATest")
-
-    assert entity.entity_name == "ThisIsOnlyATest"
-    assert entity.org_id == "test1234"
