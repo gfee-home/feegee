@@ -18,7 +18,7 @@ class QuerySingle(BaseModel):
 @APP.get("/api/v1/query/single/{entity_name}/{entity_id}", response_model=QuerySingle)
 def query_single(entity_name: str, entity_id: str):
     point_data = PointData.lookup(
-        org_id="test1234",
+        org_id="fake_org_id",
         entity_name=entity_name,
         entity_id=entity_id,
     )
